@@ -50,6 +50,21 @@ class GameStore:
         with self._lock:
             return list(self._games.values())
 
+    def start_bot_loop(self, interval: float = 0.5) -> None:
+        """Background daemon thread that lets bot players take their turns.
+        Safe to call once at app startup; runs for the life of the process."""
+        def loop() -> None:
+            while True:
+                time.sleep(interval)
+                with self._lock:
+                    for game in list(self._games.values()):
+                        try:
+                            game.bot_tick()
+                        except Exception:
+                            pass  # never let a bad bot tick take down the loop
+
+        threading.Thread(target=loop, daemon=True, name="bot-loop").start()
+
     def _sweep(self) -> None:
         cutoff = time.time() - self.ttl
         for code in [c for c, g in self._games.items() if g.last_activity < cutoff]:

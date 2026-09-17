@@ -27,8 +27,9 @@ def create_game():
     try:
         hand_size = max(4, min(15, int(request.form.get("hand_size", current_app.config["DEFAULT_HAND_SIZE"]))))
         points = max(1, min(30, int(request.form.get("points_to_win", current_app.config["DEFAULT_POINTS_TO_WIN"]))))
+        bot_count = max(0, min(11, int(request.form.get("bot_count", 0) or 0)))
     except ValueError:
-        flash("Hand size and points must be numbers.")
+        flash("Hand size, points, and bots must be numbers.")
         return redirect(url_for("pages.index"))
     pack_names = request.form.getlist("packs") or None
 
@@ -36,6 +37,8 @@ def create_game():
         game = store().create(hand_size=hand_size, points_to_win=points, pack_names=pack_names)
         try:
             player = game.add_player(name)
+            for _ in range(bot_count):
+                game.add_bot()
         except GameError as exc:
             flash(str(exc))
             return redirect(url_for("pages.index"))

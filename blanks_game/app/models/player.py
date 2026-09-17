@@ -14,6 +14,7 @@ class Player:
     hand: list[WhiteCard] = field(default_factory=list)
     score: int = 0
     connected: bool = True
+    is_bot: bool = False
 
     def take_from_hand(self, card_ids: list[str]) -> list[WhiteCard]:
         """Remove and return the given cards from the hand, in the order requested."""
@@ -29,4 +30,5 @@ class Player:
 
     def to_public_dict(self) -> dict:
         """What other players are allowed to see."""
-        return {"id": self.id, "name": self.name, "score": self.score, "connected": self.connected}
+        return {"id": self.id, "name": self.name, "score": self.score,
+                "connected": self.connected, "is_bot": self.is_bot}

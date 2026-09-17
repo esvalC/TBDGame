@@ -17,6 +17,7 @@
 
   let state = null;
   let selected = [];        // card ids chosen from hand, in order
+  let selectedSubmission = null;  // submission id the judge has tentatively picked
   let busy = false;
 
   // ---------------------------------------------------------------- network
@@ -61,7 +62,10 @@
     const prevPhase = state && state.phase;
     const prevRound = state && state.round;
     state = s;
-    if (prevPhase !== s.phase || prevRound !== s.round) selected = [];
+    if (prevPhase !== s.phase || prevRound !== s.round) {
+      selected = [];
+      selectedSubmission = null;
+    }
     render();
   }
 
@@ -119,6 +123,7 @@
       const name = el("span", "name", p.name);
       li.appendChild(name);
       if (p.id === state.host_id) li.appendChild(el("span", "tag", "HOST"));
+      if (p.is_bot) li.appendChild(el("span", "tag bot", "BOT"));
       if (p.is_judge && state.phase !== "lobby") {
         const img = el("img", "judge-icon");
         img.src = IMG + "gavel.svg";
@@ -155,6 +160,10 @@
         b.disabled = state.players.length < state.min_players;
         b.onclick = () => act("/start");
         actions.appendChild(b);
+        const bot = el("button", "btn", "Add bot");
+        bot.disabled = state.players.length >= 12;
+        bot.onclick = () => act("/add_bot");
+        actions.appendChild(bot);
       } else {
         actions.appendChild(el("span", "muted", "The host will start the game."));
       }
@@ -200,7 +209,9 @@
     }
 
     if (state.phase === "judging") {
-      status.textContent = me.is_judge ? "Pick the winner." : `${state.judge_name} is choosing a winner…`;
+      status.textContent = me.is_judge
+        ? (selectedSubmission ? "Confirm your pick below." : "Click your favorite, then confirm.")
+        : `${state.judge_name} is choosing a winner…`;
       state.submissions.forEach((sub) => {
         const s = el("div", "submission");
         const g = el("div", "group");
@@ -210,14 +221,22 @@
         r.innerHTML = renderedHTML(black, sub.cards);
         s.appendChild(r);
         if (me.is_judge) {
-          g.querySelectorAll(".card").forEach((c) => c.classList.add("selectable"));
-          const b = el("button", "btn primary", "Winner");
-          b.onclick = () => act("/judge", { submission_id: sub.id });
-          s.appendChild(b);
-          g.onclick = () => act("/judge", { submission_id: sub.id });
+          const isChosen = selectedSubmission === sub.id;
+          g.querySelectorAll(".card").forEach((c) => {
+            c.classList.add("selectable");
+            if (isChosen) c.classList.add("selected");
+          });
+          if (isChosen) s.classList.add("chosen");
+          g.onclick = () => { selectedSubmission = sub.id; render(); };
         }
         subs.appendChild(s);
       });
+      if (me.is_judge) {
+        const b = el("button", "btn primary", "Confirm winner");
+        b.disabled = !selectedSubmission;
+        b.onclick = () => act("/judge", { submission_id: selectedSubmission });
+        actions.appendChild(b);
+      }
       return;
     }
 

@@ -84,6 +84,7 @@ legend { font-weight: 700; padding: 0 .4em; }
 #players li.me .name::after { content: " (you)"; color: var(--muted); font-weight: 400; }
 #players li .score { background: #3a3a45; border-radius: 999px; padding: .1em .6em; font-weight: 800; }
 #players li .tag { font-size: .75rem; color: #111; background: var(--accent); border-radius: 4px; padding: .05em .4em; font-weight: 800; }
+#players li .tag.bot { background: #6c8ebf; color: #fff; }
 #players li .tick { width: 18px; text-align: center; color: #7ee787; }
 #players li .judge-icon { width: 20px; height: 20px; }
 
@@ -139,6 +140,8 @@ legend { font-weight: 700; padding: 0 .4em; }
 .submission .who { font-size: .85rem; color: var(--muted); font-weight: 600; min-height: 1.2em; }
 .submission .who.winner { color: var(--accent); }
 .submission .trophy { width: 26px; height: 26px; }
+.submission .rendered { transition: outline .12s, background .12s; }
+.submission.chosen .rendered { outline: 2px solid var(--accent); background: #2c2c1f; }
 
 .hand {
   display: flex;

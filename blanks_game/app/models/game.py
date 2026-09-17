@@ -54,6 +54,7 @@ class Game:
     last_activity: float = field(default_factory=time.time)
     deck: Deck | None = None
     history: list[dict] = field(default_factory=list)
+    _bot_deadlines: dict[str, float] = field(default_factory=dict)  # bot player_id -> time.time() to act
 
     # ------------------------------------------------------------------ helpers
     def touch(self) -> None:
@@ -94,10 +95,22 @@ class Game:
         self.touch()
         return player
 
+    def add_bot(self, name: str | None = None) -> Player:
+        """Add a CPU-controlled player, for solo testing without extra browser
+        tabs. Bots auto-submit random cards and auto-judge on a short delay
+        (see bot_tick, called from a background loop in GameStore)."""
+        if name is None:
+            n = sum(1 for p in self.players.values() if p.is_bot) + 1
+            name = f"Bot {n}"
+        player = self.add_player(name)
+        player.is_bot = True
+        return player
+
     def remove_player(self, player_id: str) -> None:
         player = self.players.pop(player_id, None)
         if not player:
             return
+        self._bot_deadlines.pop(player_id, None)
         if self.deck is not None:
             self.deck.discard_white(player.hand)
         self.submissions.pop(player_id, None)
@@ -236,6 +249,51 @@ class Game:
             raise GameError("Only the host can start a new game.")
         self.phase = "lobby"
         self.start(player_id)
+
+    # ------------------------------------------------------------------ bots
+    def bots_due(self) -> list[str]:
+        """Bot player ids that currently have an action available to them."""
+        if self.phase == "submitting":
+            return [pid for pid, p in self.players.items()
+                    if p.is_bot and pid != self.judge_id and pid not in self.submissions]
+        if self.phase == "judging":
+            judge = self.players.get(self.judge_id) if self.judge_id else None
+            if judge is not None and judge.is_bot:
+                return [self.judge_id]
+        return []
+
+    def bot_act(self, player_id: str) -> None:
+        """Make one bot take its turn: submit random card(s), or judge randomly."""
+        player = self.players.get(player_id)
+        if not player or not player.is_bot:
+            return
+        if self.phase == "submitting" and player_id != self.judge_id and player_id not in self.submissions:
+            pick = self.black_card.pick if self.black_card else 1
+            if len(player.hand) >= pick:
+                card_ids = [c.id for c in self.rng.sample(player.hand, pick)]
+                self.submit(player_id, card_ids)
+        elif self.phase == "judging" and player_id == self.judge_id and self.submissions:
+            winner_id = self.rng.choice(list(self.submissions))
+            self.judge_pick(player_id, winner_id)
+
+    def bot_tick(self) -> None:
+        """Called periodically (see GameStore.start_bot_loop). Lets one bot
+        act per tick, after a short randomized 'thinking' delay, so the UI
+        still shows the normal waiting states instead of resolving instantly."""
+        now = time.time()
+        due = self.bots_due()
+        for pid in list(self._bot_deadlines):
+            if pid not in due:
+                del self._bot_deadlines[pid]
+        for pid in due:
+            deadline = self._bot_deadlines.setdefault(pid, now + self.rng.uniform(1.0, 3.0))
+            if now >= deadline:
+                self._bot_deadlines.pop(pid, None)
+                try:
+                    self.bot_act(pid)
+                except GameError:
+                    pass
+                return  # state may have changed; let the next tick re-evaluate
 
     # ------------------------------------------------------------------ views
     def state_for(self, player_id: str | None) -> dict:

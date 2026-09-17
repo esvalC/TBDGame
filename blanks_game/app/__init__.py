@@ -9,6 +9,7 @@ Layout (MVC):
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from flask import Flask
@@ -26,7 +27,14 @@ def create_app(config_object: str | object = "config.Config") -> Flask:
 
     packs = load_packs(Path(app.config["PACKS_DIR"]))
     app.extensions["packs"] = packs
-    app.extensions["game_store"] = GameStore(packs, ttl_seconds=app.config["GAME_TTL_SECONDS"])
+    store = GameStore(packs, ttl_seconds=app.config["GAME_TTL_SECONDS"])
+    app.extensions["game_store"] = store
+
+    # Only start the bot loop once: if Flask's debug reloader is running,
+    # it spawns a watcher process too, and we don't want two loops ticking
+    # the same in-memory games.
+    if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        store.start_bot_loop()
 
     from .controllers import api_bp, pages_bp
 

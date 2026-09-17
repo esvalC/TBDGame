@@ -33,6 +33,21 @@ def start(code: str):
         return jsonify({"ok": True, "state": game.state_for(pid)})
 
 
+@api_bp.post("/game/<code>/add_bot")
+@api_errors
+def add_bot(code: str):
+    """Solo testing: let the host fill empty seats with CPU players instead
+    of opening more browser tabs. Only makes sense before the game starts."""
+    game, pid = _require_me(code)
+    with store().lock:
+        if pid != game.host_id:
+            raise GameError("Only the host can add bots.")
+        if game.phase != "lobby":
+            raise GameError("Bots can only be added before the game starts.")
+        game.add_bot()
+        return jsonify({"ok": True, "state": game.state_for(pid)})
+
+
 @api_bp.post("/game/<code>/submit")
 @api_errors
 def submit(code: str):
