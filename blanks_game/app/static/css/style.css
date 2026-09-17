@@ -128,7 +128,8 @@ legend { font-weight: 700; padding: 0 .4em; }
 .submissions { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
 .submission { display: flex; flex-direction: column; gap: .4rem; align-items: center; }
 .submission .group { display: flex; gap: -20px; }
-.submission .group .card + .card { margin-left: -60px; }
+.submission .group .card:hover,
+.submission .group .card:active { z-index: 10; transform: translateY(-8px); box-shadow: 0 12px 26px rgba(0,0,0,.6); }
 .submission .who { font-size: .85rem; color: var(--muted); font-weight: 600; min-height: 1.2em; }
 .submission .who.winner { color: var(--accent); }
 .submission .trophy { width: 26px; height: 26px; }
