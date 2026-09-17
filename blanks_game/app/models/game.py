@@ -243,12 +243,28 @@ class Game:
         self._begin_round()
 
     def restart(self, player_id: str) -> None:
+        """After the game ends, take everyone back to the lobby (not straight
+        into a new round) so the host can review the roster -- add/remove
+        bots, swap packs, etc. -- before explicitly clicking Start again."""
         if self.phase != "game_over":
             raise GameError("The game isn't over.")
         if player_id != self.host_id:
-            raise GameError("Only the host can start a new game.")
+            raise GameError("Only the host can return to the lobby.")
+        for p in self.players.values():
+            p.score = 0
+            p.hand = []
         self.phase = "lobby"
-        self.start(player_id)
+        self.round_number = 0
+        self.judge_id = None
+        self.black_card = None
+        self.submissions = {}
+        self.reveal_order = []
+        self.round_winner_id = None
+        self.game_winner_id = None
+        self.history = []
+        self.deck = None
+        self._bot_deadlines.clear()
+        self.touch()
 
     # ------------------------------------------------------------------ bots
     def bots_due(self) -> list[str]:

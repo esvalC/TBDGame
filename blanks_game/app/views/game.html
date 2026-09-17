@@ -16,6 +16,26 @@
 
   <div id="toast" class="toast" hidden></div>
 
+  <div id="round-winner-modal" class="modal-backdrop" hidden>
+    <div class="modal-card round-winner">
+      <div class="modal-icon">🎉</div>
+      <h2 id="round-winner-title"></h2>
+      <div id="round-winner-answer" class="rendered"></div>
+      <button id="round-winner-continue" class="btn primary">Continue</button>
+    </div>
+  </div>
+
+  <div id="game-winner-modal" class="modal-backdrop grand" hidden>
+    <div class="confetti-field" id="confetti-field"></div>
+    <div class="modal-card grand-winner">
+      <div class="trophy-big">🏆</div>
+      <h1 id="game-winner-title"></h1>
+      <p class="grand-sub">Final scores</p>
+      <ol id="final-scoreboard" class="final-scoreboard"></ol>
+      <div id="game-winner-actions"></div>
+    </div>
+  </div>
+
   <aside class="scoreboard panel">
     <h3>Players <span id="round-label" class="muted"></span></h3>
     <ul id="players"></ul>

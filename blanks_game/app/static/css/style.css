@@ -190,6 +190,78 @@ legend { font-weight: 700; padding: 0 .4em; }
 .history li { color: var(--muted); font-size: .9rem; }
 .history li b { color: var(--text); }
 
+/* ---------- winner modals ---------- */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10, 10, 14, .74);
+  padding: 1rem;
+  animation: modal-backdrop-in .15s ease;
+}
+.modal-backdrop[hidden] { display: none; }
+@keyframes modal-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-card {
+  background: var(--panel); border-radius: 16px; padding: 2rem 2.2rem;
+  width: 100%; max-width: 460px; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  animation: modal-card-in .22s cubic-bezier(.2, 1.4, .4, 1);
+}
+@keyframes modal-card-in { from { transform: scale(.86); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.round-winner .modal-icon { font-size: 2.6rem; margin-bottom: .3rem; }
+.round-winner h2 { font-size: 1.5rem; margin: 0 0 1.1rem; }
+.round-winner .rendered { text-align: left; margin-bottom: 1.4rem; }
+.round-winner .btn { width: 100%; }
+
+/* grand finale */
+.modal-backdrop.grand {
+  background: radial-gradient(circle at 50% 28%, rgba(90, 68, 10, .55), rgba(10, 10, 14, .92) 70%);
+  overflow: hidden;
+}
+.confetti-field {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1;
+}
+.confetti-piece {
+  position: absolute; top: -14px; opacity: .95; border-radius: 1px;
+  animation-name: confetti-fall;
+  animation-timing-function: cubic-bezier(.36, .1, .6, .9);
+  animation-fill-mode: forwards;
+}
+@keyframes confetti-fall {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--drift), 105vh) rotate(var(--rot)); opacity: .35; }
+}
+
+.grand-winner {
+  position: relative; z-index: 2;
+  background: linear-gradient(180deg, #2a2410, var(--panel) 60%);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 70px rgba(255, 210, 63, .35), 0 20px 60px rgba(0,0,0,.6);
+}
+.trophy-big {
+  font-size: 4rem; line-height: 1; margin-bottom: .3rem;
+  filter: drop-shadow(0 4px 12px rgba(255, 210, 63, .5));
+  animation: trophy-bounce 1.3s ease-in-out infinite;
+}
+@keyframes trophy-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.grand-winner h1 {
+  font-size: 2rem; margin: 0 0 .2rem;
+  background: linear-gradient(90deg, #ffd23f, #fff3c4, #ffd23f);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.grand-sub { color: var(--muted); margin: 0 0 .8rem; font-size: .9rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+.final-scoreboard { list-style: none; padding: 0; margin: 0 0 1.3rem; text-align: left; }
+.final-scoreboard li {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .35rem .2rem; border-bottom: 1px solid #3a3a2a; font-weight: 600;
+}
+.final-scoreboard li.top { color: var(--accent); font-weight: 900; }
+.final-scoreboard .rank { width: 1.4em; color: var(--muted); font-weight: 800; }
+.final-scoreboard .pname { flex: 1; }
+.final-scoreboard .pscore { background: #3a3620; border-radius: 999px; padding: .1em .7em; font-weight: 800; }
+#game-winner-actions .btn { width: 100%; }
+
 /* ---------- packs page ---------- */
 .packs-table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
 .packs-table th, .packs-table td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid #33333d; }

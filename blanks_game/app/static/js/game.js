@@ -15,6 +15,10 @@
     return n;
   };
 
+  const roundModal = $("round-winner-modal");
+  const gameModal = $("game-winner-modal");
+  $("round-winner-continue").onclick = () => act("/next");
+
   let state = null;
   let selected = [];        // card ids chosen from hand, in order
   let selectedSubmission = null;  // submission id the judge has tentatively picked
@@ -150,6 +154,12 @@
     actions.innerHTML = "";
     const me = state.me;
 
+    // Only hide a winner modal when we've left the phase it belongs to --
+    // this lets it stay open (and the confetti not re-spawn) across the
+    // repeated re-renders that happen while sitting on that screen.
+    if (state.phase !== "round_over") roundModal.hidden = true;
+    if (state.phase !== "game_over") gameModal.hidden = true;
+
     if (state.phase === "lobby") {
       status.textContent = `Waiting for players… (${state.players.length} joined, need ${state.min_players})`;
       status.appendChild(el("span", "sub", `Share the code ${state.code} — friends join from the home page.`));
@@ -259,15 +269,13 @@
         s.appendChild(who);
         subs.appendChild(s);
       });
+
       if (state.phase === "round_over") {
-        const b = el("button", "btn primary", "Next round");
-        b.onclick = () => act("/next");
-        actions.appendChild(b);
-      } else if (me.is_host) {
-        const b = el("button", "btn primary", "Play again");
-        b.onclick = () => act("/restart");
-        actions.appendChild(b);
+        showRoundWinnerModal();
+      } else {
+        showGameWinnerModal();
       }
+
       if (state.history.length) {
         const h = el("div", "history");
         const ul = el("ul");
@@ -279,6 +287,64 @@
         h.appendChild(ul);
         actions.appendChild(h);
       }
+    }
+  }
+
+  // -------------------------------------------------------------- winner modals
+  function showRoundWinnerModal() {
+    $("round-winner-title").textContent = `${state.round_winner_name} wins the round!`;
+    const winningSub = state.submissions.find((s) => s.winner);
+    $("round-winner-answer").innerHTML = winningSub ? renderedHTML(state.black_card, winningSub.cards) : "";
+    roundModal.hidden = false;
+  }
+
+  function showGameWinnerModal() {
+    const firstShow = gameModal.hidden;
+    $("game-winner-title").textContent = `${state.game_winner_name} wins the game!`;
+
+    const list = $("final-scoreboard");
+    list.innerHTML = "";
+    state.players.slice().sort((a, b) => b.score - a.score).forEach((p, i) => {
+      const li = el("li", i === 0 ? "top" : "");
+      const rank = el("span", "rank", String(i + 1));
+      const pname = el("span", "pname", p.name);
+      const pscore = el("span", "pscore", String(p.score));
+      li.appendChild(rank);
+      li.appendChild(pname);
+      li.appendChild(pscore);
+      list.appendChild(li);
+    });
+
+    const box = $("game-winner-actions");
+    box.innerHTML = "";
+    if (state.me && state.me.is_host) {
+      const b = el("button", "btn primary", "Continue");
+      b.onclick = () => act("/restart");
+      box.appendChild(b);
+    } else {
+      box.appendChild(el("p", "muted", "Waiting for the host to continue…"));
+    }
+
+    gameModal.hidden = false;
+    if (firstShow) spawnConfetti();
+  }
+
+  function spawnConfetti() {
+    const field = $("confetti-field");
+    field.innerHTML = "";
+    const colors = ["#ffd23f", "#ff6b6b", "#7ee787", "#6ec8ff", "#ffffff"];
+    for (let i = 0; i < 130; i++) {
+      const p = el("span", "confetti-piece");
+      p.style.left = (Math.random() * 100) + "%";
+      p.style.background = colors[i % colors.length];
+      const size = 6 + Math.random() * 6;
+      p.style.width = size + "px";
+      p.style.height = (size * 0.4) + "px";
+      p.style.animationDelay = (Math.random() * 0.6) + "s";
+      p.style.animationDuration = (2.6 + Math.random() * 1.8) + "s";
+      p.style.setProperty("--drift", ((Math.random() * 2 - 1) * 70) + "px");
+      p.style.setProperty("--rot", (Math.random() * 360) + "deg");
+      field.appendChild(p);
     }
   }
 
