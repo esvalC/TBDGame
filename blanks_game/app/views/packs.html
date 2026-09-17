@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Card packs · {{ GAME_TITLE }}{% endblock %}
+{% block content %}
+<h1>Card packs</h1>
+<p>Packs are loaded from <code>{{ packs_dir }}</code>. Every <code>.json</code> file in that folder is a pack
+  (files starting with <code>_</code> are ignored). Restart the server after editing.</p>
+
+{% if packs %}
+<table class="packs-table">
+  <thead><tr><th>Pack</th><th>File</th><th>Black cards</th><th>White cards</th></tr></thead>
+  <tbody>
+  {% for p in packs %}
+    <tr>
+      <td>{{ p.name }}</td>
+      <td><code>{{ p.path.name }}</code></td>
+      <td>{{ p.black|length }}</td>
+      <td>{{ p.white|length }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p class="warn">No packs found.</p>
+{% endif %}
+
+<h2>Adding cards</h2>
+<p>Copy <code>data/packs/_template.json</code> to a new name (e.g. <code>calvin.json</code>) and fill it in:</p>
+<pre>{
+  "name": "My Pack",
+  "black": [
+    "____ is the reason I got kicked out of the library.",
+    { "text": "____ + ____ = a terrible weekend.", "pick": 2 }
+  ],
+  "white": [
+    "A suspiciously warm chair",
+    "Forty raccoons in a trench coat"
+  ]
+}</pre>
+<ul>
+  <li>Use four underscores <code>____</code> for a blank. <strong>pick</strong> is inferred from the number of blanks, so you only need it for cards with no blanks that want 2+ answers.</li>
+  <li>Black cards without any blank (questions like "What ended my last relationship?") get the answer appended.</li>
+  <li>Run <code>python scripts/validate_packs.py</code> to check your JSON before starting the server.</li>
+</ul>
+
+<p class="preview-row">
+  <img src="{{ url_for('static', filename='img/black_card.svg') }}" alt="Black card art" class="art-preview">
+  <img src="{{ url_for('static', filename='img/white_card.svg') }}" alt="White card art" class="art-preview">
+  <img src="{{ url_for('static', filename='img/card_back_black.svg') }}" alt="Black card back" class="art-preview">
+  <img src="{{ url_for('static', filename='img/card_back_white.svg') }}" alt="White card back" class="art-preview">
+</p>
+{% endblock %}

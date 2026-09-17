@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ GAME_TITLE }} · {{ code }}{% endblock %}
+{% block nav %}
+  <span class="code-badge" title="Game code">{{ code }}</span>
+  <form method="post" action="{{ url_for('pages.leave_game', code=code) }}" class="inline">
+    <button class="link" type="submit">Leave</button>
+  </form>
+{% endblock %}
+
+{% block content %}
+<div id="game"
+     data-code="{{ code }}"
+     data-player-id="{{ player_id }}"
+     data-poll="{{ POLL_INTERVAL_MS }}"
+     data-api="{{ url_for('api.state', code=code) | replace('/state', '') }}">
+
+  <div id="toast" class="toast" hidden></div>
+
+  <aside class="scoreboard panel">
+    <h3>Players <span id="round-label" class="muted"></span></h3>
+    <ul id="players"></ul>
+    <p class="muted small" id="deck-info"></p>
+  </aside>
+
+  <section class="table">
+    <div id="status" class="status"></div>
+
+    <div id="black-slot" class="black-slot"></div>
+
+    <div id="submissions" class="submissions"></div>
+
+    <div id="actions" class="actions"></div>
+  </section>
+
+  <section class="hand-wrap">
+    <h3 id="hand-title">Your hand</h3>
+    <div id="hand" class="hand"></div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/game.js') }}"></script>
+{% endblock %}

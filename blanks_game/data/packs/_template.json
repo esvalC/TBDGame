@@ -1,0 +1,22 @@
+{
+  "name": "My Pack Name",
+  "_help": [
+    "Copy this file to a new name without the leading underscore, e.g. calvin.json.",
+    "Files starting with '_' are ignored, so this template never gets loaded.",
+    "BLACK cards: use four underscores ____ for each blank. 'pick' is inferred from the blank count.",
+    "  A plain string is fine. Use {\"text\": \"...\", \"pick\": 2} only when you need to force a pick count.",
+    "WHITE cards: one string each. Keep them short (about 60 characters) so they fit on the card.",
+    "Delete this _help key if you like; it is ignored by the game.",
+    "Check your work: python scripts/validate_packs.py"
+  ],
+  "black": [
+    "____ is why I can't go back to that restaurant.",
+    { "text": "First ____, then ____.", "pick": 2 },
+    "What did I find under the couch?"
+  ],
+  "white": [
+    "Your first white card",
+    "Your second white card",
+    "Your third white card"
+  ]
+}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <img src="{{ url_for('static', filename='img/hero_cards.svg') }}" alt="" class="hero-art">
+  <h1>{{ GAME_TITLE }}</h1>
+  <p class="tagline">A fill-in-the-blank party game. One person judges, everyone else plays their worst answer.</p>
+</section>
+
+<div class="two-col">
+  <form class="panel" method="post" action="{{ url_for('pages.create_game') }}">
+    <h2>Start a game</h2>
+    <label>Your name
+      <input name="name" maxlength="20" required autocomplete="nickname" placeholder="e.g. Calvin">
+    </label>
+    <div class="row">
+      <label>Cards in hand
+        <input type="number" name="hand_size" min="4" max="15" value="{{ default_hand }}">
+      </label>
+      <label>Points to win
+        <input type="number" name="points_to_win" min="1" max="30" value="{{ default_points }}">
+      </label>
+    </div>
+    <fieldset>
+      <legend>Card packs</legend>
+      {% if packs %}
+        {% for p in packs %}
+          <label class="check">
+            <input type="checkbox" name="packs" value="{{ p.name }}" checked>
+            {{ p.name }} <small>({{ p.black|length }} black · {{ p.white|length }} white)</small>
+          </label>
+        {% endfor %}
+      {% else %}
+        <p class="warn">No packs found. Add a JSON file to <code>data/packs/</code>.</p>
+      {% endif %}
+    </fieldset>
+    <button type="submit" class="btn primary">Create game</button>
+  </form>
+
+  <form class="panel" method="post" action="{{ url_for('pages.join_game') }}">
+    <h2>Join a game</h2>
+    <label>Game code
+      <input name="code" maxlength="4" required class="code-input" value="{{ prefill_code }}" placeholder="ABCD" autocapitalize="characters" autocomplete="off">
+    </label>
+    <label>Your name
+      <input name="name" maxlength="20" required autocomplete="nickname">
+    </label>
+    <button type="submit" class="btn">Join</button>
+    <p class="hint">Everyone plays from their own phone or laptop on the same Wi-Fi. Share the code.</p>
+  </form>
+</div>
+{% endblock %}

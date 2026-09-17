@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- two cards fanned behind a speech bubble -->
+  <g transform="rotate(-12 32 40)">
+    <rect x="12" y="18" width="26" height="36" rx="4" fill="#f4f4f7" stroke="#c9c9d1" stroke-width="1.5"/>
+  </g>
+  <g transform="rotate(10 32 40)">
+    <rect x="26" y="16" width="26" height="36" rx="4" fill="#111114" stroke="#000" stroke-width="1.5"/>
+  </g>
+  <path d="M8 8 a6 6 0 0 1 6-6 h36 a6 6 0 0 1 6 6 v18 a6 6 0 0 1-6 6 h-22 l-10 8 v-8 h-4 a6 6 0 0 1-6-6 z" fill="#ffd23f"/>
+  <rect x="18" y="14" width="28" height="5" rx="2.5" fill="#111"/>
+</svg>
